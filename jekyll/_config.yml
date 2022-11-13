@@ -1,0 +1,7 @@
+title: 红楼梦
+description: >-
+  免费开源的红楼梦，整合多种脂评本，包含高清图片，行内注释评论方便查阅
+repository: changren-wcr/Dream-of-the-Red-Chamber
+theme: minima
+plugins:
+  - jekyll-feed

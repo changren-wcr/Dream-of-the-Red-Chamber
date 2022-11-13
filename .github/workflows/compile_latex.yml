@@ -28,14 +28,6 @@ jobs:
           # main.tex generates main.pdf
           # copy this file to workflow tab
           path: main.pdf
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        # only release with git-tag
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: main.pdf
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   book-with-compressed-pictures:
     runs-on: ubuntu-latest
     steps:
@@ -71,14 +63,6 @@ jobs:
           # main.tex generates main.pdf
           # copy this file to workflow tab
           path: main.pdf
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        # only release with git-tag
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: main.pdf
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   book-without-pictures:
     runs-on: ubuntu-latest
     steps:
@@ -109,11 +93,34 @@ jobs:
           # main.tex generates main.pdf
           # copy this file to workflow tab
           path: main.pdf
+  release:
+    needs:
+      [book-with-pictures, book-with-compressed-pictures, book-without-pictures]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: book-with-pictures
+          path: book-with-pictures
+      - uses: actions/download-artifact@v2
+        with:
+          name: book-with-compressed-pictures
+          path: book-with-compressed-pictures
+      - uses: actions/download-artifact@v2
+        with:
+          name: book-without-pictures
+          path: book-without-pictures
+      - run: |
+          mv book-with-pictures/main.pdf book-with-pictures/book-with-pictures.pdf
+          mv book-with-compressed-pictures/main.pdf book-with-compressed-pictures/book-with-compressed-pictures.pdf
+          mv book-without-pictures/main.pdf book-without-pictures/book-without-pictures.pdf
       - name: Release
         uses: softprops/action-gh-release@v1
-        # only release with git-tag
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: main.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            book-with-pictures/*
+            book-with-compressed-pictures/*
+            book-without-pictures/*
